@@ -7,6 +7,8 @@ import Items from './items'
 import { Separator } from '@/components/ui/separator'
 import { HelpCircle } from 'lucide-react'
 import ClerkAuthState from '../clerk-auth-state'
+import SubscriptionPlan from '../subscription-plan'
+import UpgradeCard from './upgrade'
 
 type Props = {
   slug: string
@@ -40,6 +42,11 @@ const Sidebar = ({ slug }: Props) => {
             </p>
           </div>
         </div>
+        <SubscriptionPlan type='FREE'>
+          <div className='flex-1 flex flex-col justify-end'>
+<UpgradeCard />
+          </div>
+        </SubscriptionPlan>
       </div>
     </div>
   )
