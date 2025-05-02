@@ -1,8 +1,7 @@
 import React from 'react'
 
-type Props = {}
 
-const Page = (props: Props) => {
+const Page = () => {
   // WIP: Server Action Onboard the user
   // WIP: 200 || 201
 

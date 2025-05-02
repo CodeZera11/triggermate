@@ -4,7 +4,7 @@ type Props = {
   children: React.ReactNode
 }
 
-const SubscriptionPlan: React.FC<Props> = ({ children, type }) => {
+const SubscriptionPlan: React.FC<Props> = ({ children }) => {
   // WIP: Return subscription of user
   return children
 }
