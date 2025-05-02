@@ -9,7 +9,8 @@ const IntegrationsPage = () => {
     const res = await fetch("/api/instagram/connect")
     const data = await res.json();
     if (data.url) {
-      window.location.href = data.url; // Redirect the user to the auth URL
+      // on new tab
+      window.open(data.url, "_blank");
     } else {
       console.error('Failed to get auth URL:', data.error);
     }

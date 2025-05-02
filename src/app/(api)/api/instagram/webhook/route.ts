@@ -4,6 +4,9 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest) {
   const code = request.nextUrl.searchParams.get("code");
   const state = request.nextUrl.searchParams.get("state");
+  const aT = request.nextUrl.searchParams.get("access_token");
+
+  console.log("AT:", aT);
 
   if (!code || !state) {
     return NextResponse.json(
@@ -12,11 +15,6 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  const decodedState = JSON.parse(
-    Buffer.from(state, "base64").toString("utf-8")
-  );
-  console.log("Decoded state:", decodedState);
-
   // Exchange the code for an access token
   const FB_APP_ID = "9581925988559246"; // Replace with your Facebook App ID
   const FB_APP_SECRET = "83fe32c16d6821f847d01d26d6f38fed"; // Add your App Secret to environment variables
@@ -24,12 +22,16 @@ export async function GET(request: NextRequest) {
     process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"
   }/api/instagram/webhook`;
 
-  const tokenResponse = await fetch(
-    `https://graph.facebook.com/oauth/access_token?client_id=${FB_APP_ID}&redirect_uri=${encodeURIComponent(
-      REDIRECT_URI
-    )}&client_secret=${FB_APP_SECRET}&code=${code}`,
-    { method: "GET" }
-  );
+  const authUrl = `https://graph.facebook.com/v22.0/oauth/access_token?client_id=${FB_APP_ID}&redirect_uri=${encodeURIComponent(
+    REDIRECT_URI
+  )}&client_secret=${FB_APP_SECRET}&code=${code}`;
+
+  const tokenResponse = await fetch(authUrl, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
   const tokenData = await tokenResponse.json();
 
@@ -42,29 +44,52 @@ export async function GET(request: NextRequest) {
   }
 
   console.log("Access token response:", tokenData);
-  const userFields = "id,username,account_type,name";
+  // const userFields = "id,username,account_type,name";
   const accessToken = tokenData.access_token;
   console.log("Access token:", accessToken);
 
-  // Use the access token to fetch Instagram user data (optional)
-  const userResponse = await fetch(`https://graph.instagram.com/v22.0/me
-  ?fields=${userFields}
-  &access_token=${accessToken}`);
+  const decodedState = JSON.parse(
+    Buffer.from(state, "base64").toString("utf-8")
+  );
+  console.log("Decoded state:", decodedState);
 
-  const userData = await userResponse.json();
+  const accounts = await fetch(
+    `https://graph.facebook.com/v22.0/me/accounts?access_token=${accessToken}`
+  );
 
-  if (!userResponse.ok) {
-    console.error("Error fetching Instagram user data:", userData);
-    return NextResponse.json(
-      { error: "Failed to fetch Instagram user data" },
-      { status: 500 }
-    );
-  }
+  const accountsData = await accounts.json();
+  console.log("Accounts data:", accountsData);
+  const pageId = accountsData.data[0].id;
+  console.log({ pageId });
 
-  console.log("Instagram user data:", userData);
+  const igAccountRes = await fetch(
+    `https://graph.facebook.com/v22.0/${pageId}?fields=instagram_business_account&access_token=${accessToken}`
+  );
 
-  // Return the user data or save it to your database
-  return NextResponse.json({ user: userData });
+  const igData = await igAccountRes.json();
+  console.log("Instagram Business Account ID:", igData);
+
+  return NextResponse.json({ sucess: true, accountsData, igData });
+
+  // // Use the access token to fetch Instagram user data (optional)
+  // const userResponse = await fetch(`https://graph.instagram.com/v22.0/me
+  // ?fields=${userFields}
+  // &access_token=${accessToken}`);
+
+  // const userData = await userResponse.json();
+
+  // if (!userResponse.ok) {
+  //   console.error("Error fetching Instagram user data:", userData);
+  //   return NextResponse.json(
+  //     { error: "Failed to fetch Instagram user data" },
+  //     { status: 500 }
+  //   );
+  // }
+
+  // console.log("Instagram user data:", userData);
+
+  // // Return the user data or save it to your database
+  // return NextResponse.json({ user: userData });
 
   // http://localhost:3000/api/instagram/webhook?code=AQClShNcaEDwQjYWzG4mf3p7MZulS3ILutjsp8Fdf3_vUI9rQQfDilt6G32-vN9kqyqrLIYiuT-TGJXZREyZYJ0LHRwMtufIPxgxEidsQ4q8xitl65D8H5erMUutO4VqtSc_oyGE-ZYBJXSvVcUWm9rNVAveF_jpyabZbKnwUDVYVWf3KfSL3oBMElt4sXkvLLeuy9eD1hVylhXvXZ0Z-llKgGxnes3DMcUAMitgV-np2aIUVbkytPr_pMNv8hpwY81pvem0kMN1XZFhTErm5nXBC0lqeik0srKFEV7FGu9zxcsaT4q1l0gMBHsiC7Hx-Reb97_UpL5lgGrHZ4dQIUbbWkROcFStgGL0uVw9WN_0KZ89bGDC3yLf1yGh4gIWHbM&state=eyJ1c2VySWQiOiJ1c2VyXzJ3UmhWNHpNWWdQYm1YRTNIdXAycUppVWpoTyJ9#_=_
 

@@ -10,6 +10,28 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
+    const appId = "9581925988559246";
+    const redirectUri = `http://localhost:3000/api/instagram/webhook`;
+    const scopes = "pages_show_list,instagram_basic";
+    const responseType = "code";
+    const state = Buffer.from(JSON.stringify({ userId: user.id })).toString(
+      "base64"
+    );
+
+    //   const authUrl = `https://www.facebook.com/v22.0/dialog/oauth?
+    // client_id=${appId}
+    // &redirect_uri=${encodeURIComponent(redirectUri)}
+    // &scope=${scopes}
+    // &response_type=${responseType}`;
+
+    const authUrl = `https://www.facebook.com/v22.0/dialog/oauth?client_id=${appId}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&scope=${scopes}&response_type=${responseType}&state=${state}`;
+
+    return NextResponse.json({
+      url: authUrl,
+    });
+
     // return NextResponse.json({
     //   url: "https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=1271886161320483&redirect_uri=https://33b9-103-158-140-15.ngrok-free.app/api/instagram/webhook&response_type=code&scope=instagram_business_basic%2Cinstagram_business_manage_messages%2Cinstagram_business_manage_comments%2Cinstagram_business_content_publish%2Cinstagram_business_manage_insights",
     // });
@@ -21,9 +43,9 @@ export async function GET() {
     // }/api/instagram/webhook`;
 
     // State parameter to prevent CSRF (includes user ID)
-    const state = Buffer.from(JSON.stringify({ userId: user.id })).toString(
-      "base64"
-    );
+    // const state = Buffer.from(JSON.stringify({ userId: user.id })).toString(
+    //   "base64"
+    // );
 
     // Updated scopes based on latest Graph API v22.0
     // const scopes = [
@@ -63,18 +85,18 @@ export async function GET() {
 
     //   // Redirect to Facebook authorization page
 
-    const IG_APP_ID = "1271886161320483"; // Your Instagram App ID
-    const REDIRECT_URI = `${
-      process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"
-    }/api/instagram/webhook`;
+    // const IG_APP_ID = "1271886161320483"; // Your Instagram App ID
+    // const REDIRECT_URI = `${
+    //   process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"
+    // }/api/instagram/webhook`;
 
-    const scopes = ["user_profile", "user_media"]; // Scopes required for Basic Display API
+    // const scopes = ["user_profile", "user_media"]; // Scopes required for Basic Display API
 
-    const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${IG_APP_ID}&redirect_uri=${encodeURIComponent(
-      REDIRECT_URI
-    )}&scope=${scopes.join(",")}&response_type=code&state=${state}`;
+    // const authUrl = `https://api.instagram.com/oauth/authorize?client_id=${IG_APP_ID}&redirect_uri=${encodeURIComponent(
+    //   REDIRECT_URI
+    // )}&scope=${scopes.join(",")}&response_type=code&state=${state}`;
 
-    return NextResponse.json({ url: authUrl });
+    // return NextResponse.json({ url: authUrl });
   } catch (error) {
     console.error("Instagram connect error:", error);
     return NextResponse.json(
