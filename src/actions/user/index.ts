@@ -3,6 +3,7 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { findUser } from "./queries";
+import { refreshToken } from "@/lib/fetch";
 
 export const onCurrentUser = async () => {
   const user = await currentUser();
@@ -30,7 +31,9 @@ export const onBoardUser = async () => {
 
           if(days < 5) {
             console.log("refresh")
-            // const refresh = await 
+            const refresh = await refreshToken(integrations[0]?.token);
+
+            
           }
         }
       }
