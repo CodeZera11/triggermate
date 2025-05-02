@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
   const INSTAGRAM_BASE_URL = "https://graph.instagram.com/v22.0";
 
   const shortTokenRes = await fetch(
-    "https://graph.instagram.com/access_token",
+    "https://api.instagram.com/oauth/access_token",
     {
       method: "POST",
       body: insta_form,
@@ -40,18 +40,33 @@ export async function GET(request: NextRequest) {
 
     if (longToken) {
       const res = await fetch(
-        `${INSTAGRAM_BASE_URL}/me?fields=user_id&access_token=${longToken.data.access_token}`,
+        `${INSTAGRAM_BASE_URL}/me?fields=user_id&access_token=${longToken.access_token}`,
         {
           method: "GET",
         }
       );
 
-      const instaId = await res.json();
-      console.log(instaId, "got insta id");
+      const insta = await res.json();
+      const userId = insta.user_id;
+
+      const url = `https://graph.instagram.com/v22.0/${userId}/media?access_token=${longToken.access_token}`;
+
+      const mediaRes = await fetch(url, {
+        method: "GET",
+      });
+
+      const mediaIds = await mediaRes.json();
+      const mediaId = mediaIds.data[0].id;
+
+      const mediaRes2 = await fetch(`https://graph.instagram.com/v22.0/${mediaId}?fields=media_type,media_url&access_token=${longToken.access_token}`);
+
+      const media = await mediaRes2.json();
+
+      return NextResponse.json({ success: true, insta, media, url });
     }
   }
 
   return NextResponse.json({
-    success: true,
+    success: false,
   });
 }

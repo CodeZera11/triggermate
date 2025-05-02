@@ -1,6 +1,56 @@
 import { sql } from "@vercel/postgres";
 import { drizzle } from "drizzle-orm/vercel-postgres";
+import {
+  automationRelations,
+  automationsTable,
+  dmRelations,
+  dmsTable,
+  integrationRelations,
+  IntegrationsEnum,
+  integrationsTable,
+  keywordRelations,
+  keywordsTable,
+  listenerRelations,
+  ListenersEnum,
+  listenersTable,
+  MediaTypeEnum,
+  postRelations,
+  postsTable,
+  SubscriptionPlanEnum,
+  subscriptionRelations,
+  subscriptionTable,
+  triggerRelations,
+  triggersTable,
+  userRelations,
+  usersTable,
+} from "./schema";
 
-const db = drizzle({ client: sql });
+const db = drizzle({
+  client: sql,
+  schema: {
+    SubscriptionPlanEnum,
+    IntegrationsEnum,
+    MediaTypeEnum,
+    ListenersEnum,
+    usersTable,
+    userRelations,
+    subscriptionTable,
+    subscriptionRelations,
+    integrationsTable,
+    integrationRelations,
+    automationsTable,
+    automationRelations,
+    dmsTable,
+    dmRelations,
+    postsTable,
+    postRelations,
+    listenersTable,
+    listenerRelations,
+    triggersTable,
+    triggerRelations,
+    keywordsTable,
+    keywordRelations,
+  },
+});
 
 export { db };
