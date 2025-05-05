@@ -8,7 +8,8 @@ import {
 
 export const useMutationData = (
   mutationKey: MutationKey,
-  mutationFn: MutationFunction<unknown, unknown>,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  mutationFn: MutationFunction<any, any>,
   queryKey?: string,
   onSuccess?: () => void
 ) => {
