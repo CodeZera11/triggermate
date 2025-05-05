@@ -14,3 +14,27 @@ export const findUser = async (clerkId: string) => {
     },
   });
 };
+
+export const createUser = async ({
+  clerkId,
+  email,
+  firstName,
+  lastName,
+}: {
+  clerkId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}) => {
+  const [user] = await db
+    .insert(usersTable)
+    .values({
+      clerkId: clerkId,
+      email: email,
+      firstName: firstName,
+      lastName: lastName,
+    })
+    .returning();
+
+  return user;
+};
