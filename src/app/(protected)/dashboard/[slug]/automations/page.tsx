@@ -32,9 +32,8 @@ const AutomationsPage = () => {
 }
 
 export const AutomationList = () => {
-  const { pathname } = usePaths();
   const { data } = useQueryAutomations()
-
+  const { pathname } = usePaths();
 
   if (data?.status !== 200 || data?.data?.length <= 0) {
     return (
@@ -47,15 +46,14 @@ export const AutomationList = () => {
     )
   }
 
-  console.log({ data })
 
   return (
     <div className='flex flex-col gap-y-3'>
       {data?.data?.map((automation) => (
         <Link
           key={automation.id}
-          href={`${pathname}/${automation?.id}`}>
-          <div className='flex flex-col flex-1 items-start'>
+          href={`${pathname}/${automation?.id}`} className='border p-4 rounded-md flex justify-between h-[150px]'>
+          <div className='flex flex-col flex-1 h-full justify-between items-start'>
             <h2 className='text-xl font-semibold'>
               {automation.name}
             </h2>
@@ -74,19 +72,21 @@ export const AutomationList = () => {
               </div>
             )}
           </div>
-          <div className='flex flex-col justify-between'>
+          <div className='flex flex-col justify-between h-full '>
             <p className='capitalize text-sm font-light'>
               {format(new Date(automation?.createdAt || ""), 'MMMM dd, yyyy')}
             </p>
-            {automation?.listener?.listener === "SMARTAI" ? (
-              <Button>
-                Smart AI
-              </Button>
-            ) : (
-              <Button variant="secondary">
-                Standard
-              </Button>
-            )}
+            <div className='bg-red-500 mt-auto'>
+              {automation?.listener?.listener === "SMARTAI" ? (
+                <Button>
+                  Smart AI
+                </Button>
+              ) : (
+                <Button variant="secondary">
+                  Standard
+                </Button>
+              )}
+            </div>
           </div>
         </Link>
       ))}

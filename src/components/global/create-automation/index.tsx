@@ -8,7 +8,7 @@ import { useCreateAutomation } from '@/hooks/use-automations';
 
 const CreateAutomation = () => {
   const { isPending, mutate } = useCreateAutomation();
-
+ 
   return (
     <Button className='lg:px-10 py-6 rounded-full' onClick={() => mutate()} >
       <Loader state={isPending}>

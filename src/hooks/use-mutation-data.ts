@@ -2,6 +2,7 @@ import {
   MutationFunction,
   MutationKey,
   useMutation,
+  useMutationState,
   useQueryClient,
 } from "@tanstack/react-query";
 
@@ -25,4 +26,20 @@ export const useMutationData = (
   });
 
   return { mutate, isPending };
+};
+
+export const useMutationDataState = (mutationKey: MutationKey) => {
+  const data = useMutationState({
+    filters: { mutationKey },
+    select: (mutation) => {
+      return {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        variables: mutation.state.variables as any,
+        status: mutation.state.status,
+      };
+    },
+  });
+
+  const latestVariable = data[data.length - 1];
+  return { latestVariable };
 };
