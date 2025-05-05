@@ -4,8 +4,9 @@ import { db } from "@/db";
 import { automationsTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
-export const createAutomation = async (userId: string) => {
+export const createAutomation = async (userId: string, id?: string) => {
   return await db.insert(automationsTable).values({
+    id: id,
     userId: userId,
   });
 };

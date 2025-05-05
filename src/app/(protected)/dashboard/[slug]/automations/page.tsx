@@ -2,6 +2,7 @@
 
 import CreateAutomation from '@/components/global/create-automation'
 import { Button } from '@/components/ui/button'
+import { useMutationDataState } from '@/hooks/use-mutation-data'
 import { usePaths } from '@/hooks/user-nav'
 import { useQueryAutomations } from '@/hooks/user-queries'
 import { cn } from '@/lib/utils'
@@ -32,8 +33,24 @@ const AutomationsPage = () => {
 }
 
 export const AutomationList = () => {
-  const { data } = useQueryAutomations()
   const { pathname } = usePaths();
+  const { data } = useQueryAutomations();
+
+  const { optimisticUiData } = useMutationDataState(["create-automation"])
+
+
+
+  // const optimisticUiData = useMemo(() => {
+
+  //   if (!data) return { data: [] };
+
+  //   if (latestVariable?.variables) {
+  //     const test = [...data?.data, latestVariable?.variables]
+  //     return { data: test }
+  //   }
+
+  //   return { data: data?.data }
+  // }, [latestVariable, data])
 
   if (data?.status !== 200 || data?.data?.length <= 0) {
     return (
@@ -46,10 +63,9 @@ export const AutomationList = () => {
     )
   }
 
-
   return (
     <div className='flex flex-col gap-y-3'>
-      {data?.data?.map((automation) => (
+      {((optimisticUiData && optimisticUiData?.length > data?.data?.length) ? optimisticUiData : data?.data)?.map((automation) => (
         <Link
           key={automation.id}
           href={`${pathname}/${automation?.id}`} className='border p-4 rounded-md flex justify-between h-[150px]'>

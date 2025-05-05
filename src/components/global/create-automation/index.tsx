@@ -1,16 +1,18 @@
 "use client"
 
-import { Button } from '@/components/ui/button'
-import React from 'react'
 import Loader from '../loader'
+import { Button } from '@/components/ui/button'
 import { useCreateAutomation } from '@/hooks/use-automations';
+import { useMemo } from 'react';
+import { v4 } from 'uuid';
 
 
 const CreateAutomation = () => {
-  const { isPending, mutate } = useCreateAutomation();
- 
+  const mutationId = useMemo(() => v4(), []);
+  const { isPending, mutate } = useCreateAutomation(mutationId);
+
   return (
-    <Button className='lg:px-10 py-6 rounded-full' onClick={() => mutate()} >
+    <Button className='lg:px-10 py-6 rounded-full' onClick={() => mutate({ name: "Untitled", id: mutationId, createdAt: new Date() })} >
       <Loader state={isPending}>
         <p className='lg:inline hidden'>Create an Automation</p>
       </Loader>
