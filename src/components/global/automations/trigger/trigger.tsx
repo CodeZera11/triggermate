@@ -21,8 +21,7 @@ type Props = {
 
 const Trigger = ({ id }: Props) => {
   const [types, setTypes] = React.useState<string[]>([]);
-  const { isPending} = useTriggers(id, types);
-  console.log({ types })
+  const { isPending, onSaveTrigger } = useTriggers(id, types);
   const { data } = useQueryAutomation(id);
 
   if (data?.data && data?.data?.triggers?.length > 0) {
@@ -52,6 +51,7 @@ const Trigger = ({ id }: Props) => {
     )
   }
 
+  console.log([types])
 
   return (
     <Popover>
@@ -85,6 +85,11 @@ const Trigger = ({ id }: Props) => {
           </div>
         ))}
         <Keywords id={id} />
+        <Button onClick={onSaveTrigger} disabled={isPending} className='w-full mt-4'>
+          <Loader state={isPending}>
+            Add Trigger
+          </Loader>
+        </Button>
       </PopoverContent>
     </Popover>
   )

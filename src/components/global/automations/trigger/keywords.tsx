@@ -3,6 +3,7 @@ import { useKeywords } from "@/hooks/use-automations";
 import { useMutationDataState } from "@/hooks/use-mutation-data";
 import { useQueryAutomation } from "@/hooks/use-queries";
 import { X } from "lucide-react";
+import { toast } from "sonner";
 
 type Props = {
   id: string
@@ -33,7 +34,11 @@ const Keywords = ({ id }: Props) => {
                 </p>
                 <X
                   size={20}
-                  onClick={() => deleteMutation({ id: word.id })}
+                  onClick={() => deleteMutation({ id: word.id }, {
+                    onSuccess: () => {
+                      toast.success("Keyword deleted successfully");
+                    }
+                  })}
                   className="text-neutral-500 cursor-pointer"
                 />
               </div>

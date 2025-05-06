@@ -94,6 +94,7 @@ export const useListener = (id: string) => {
 export type TriggerType = "COMMENT" | "DM";
 
 export const useTriggers = (id: string, types: string[]) => {
+  console.log({ types });
   const { isPending, mutate } = useMutationData(
     ["add-trigger"],
     (data: { types: string[] }) => saveTrigger(id, data.types),
