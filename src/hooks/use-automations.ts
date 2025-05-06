@@ -6,6 +6,7 @@ import {
 import { useMutationData } from "./use-mutation-data";
 import { useEffect, useRef, useState } from "react";
 import { z } from "zod";
+import useZodForm from "./use-zod-form";
 
 export const useCreateAutomation = (id?: string) => {
   const { isPending, mutate } = useMutationData(
@@ -78,5 +79,9 @@ export const useListener = (id: string) => {
     "automation-info"
   );
 
-  const {} = useZodForm
+  const onSetListener = (type: "MESSAGE" | "SMARTAI") => setListener(type);
+
+  const formReturns = useZodForm(promptSchema, mutate, {});
+
+  return { ...formReturns, onSetListener, isPending, listener };
 };

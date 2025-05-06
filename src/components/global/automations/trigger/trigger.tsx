@@ -1,8 +1,18 @@
 "use client"
 
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Separator } from '@/components/ui/separator'
-import { useQueryAutomation } from '@/hooks/user-queries'
+import { AUTOMATION_LISTENERS } from '@/constants/automations'
+import { useListener } from '@/hooks/use-automations'
+import { useQueryAutomation } from '@/hooks/use-queries'
+import { cn } from '@/lib/utils'
+import { PlusCircle } from 'lucide-react'
 import React from 'react'
+import SubscriptionPlan from '../../subscription-plan'
+import { Textarea } from '@/components/ui/textarea'
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
+import Loader from '../../loader'
 
 type Props = {
   id: string
@@ -12,41 +22,34 @@ const Trigger = ({ id }: Props) => {
 
   const { data } = useQueryAutomation(id);
 
-  // if (data?.data && data?.data?.triggers?.length > 0) {
-  // const triggers = data?.data?.triggers;
-  // const trigger = triggers[0];
+  if (data?.data && data?.data?.triggers?.length > 0) {
+    const triggers = data?.data?.triggers;
+    const trigger = triggers[0];
+
+    return (
+      <div className='flex flex-col gap-y-6 items-center'>
+        <ActiveTrigger type={trigger.type} keywords={data?.data?.keywords} />
+        {triggers?.length > 1 && (
+          <>
+            <div className="relative w-6/12 my-4">
+              <p className='absolute transform px-2 -translate-y-1/2 top-1/2 -translate-x-1/2 left-1/2'>or</p>
+              <Separator
+                orientation='horizontal'
+                className="border-muted border-[1px]"
+              />
+            </div>
+            <ActiveTrigger type={triggers[1].type} keywords={data?.data?.keywords} />
+          </>
+        )}
+
+        {!data?.data?.listener && <ThenAction id={id} />}
+      </div>
+    )
+  }
+  
 
   return (
-    <div className='flex flex-col gap-y-6 items-center'>
-      <ActiveTrigger type={"COMMENT"} keywords={[{
-        id: "1",
-        word: "test",
-        automationId: null
-      }]} />
-      {/* Trigger > 1 */}
-      <>
-        <div className="relative w-6/12 my-4">
-          <p className='absolute transform px-2 -translate-y-1/2 top-1/2 -translate-x-1/2 left-1/2'>or</p>
-          <Separator
-            orientation='horizontal'
-            className="border-muted border-[1px]"
-          />
-        </div>
-        <ActiveTrigger type={"MESSAGE"} keywords={[{
-          id: "1",
-          word: "test",
-          automationId: null
-        }]} />
-      </>
-
-      <ThenAction />
-    </div>
-  )
-  // }
-
-
-  return (
-    <div>Trigger</div>
+    <Button>Add Trigger</Button>
   )
 }
 
@@ -86,11 +89,72 @@ type ThenActionProps = {
 }
 
 export const ThenAction: React.FC<ThenActionProps> = ({ id }) => {
-  const {} = useListener(id);
+  const {
+    onSetListener,
+    listener: Listener,
+    onFormSubmit,
+    register,
+    isPending
+  } = useListener(id);
+
   return (
-    <div></div>
+    <Popover>
+      <PopoverTrigger asChild>
+        <div className='p-6 rounded-lg border-dashed border w-full flex items-center justify-center cursor-pointer'>
+          <PlusCircle />
+        </div>
+      </PopoverTrigger>
+      <PopoverContent
+        className={cn('w-[400px] bg-[#1D1D1D] shadow-lg')}
+        align="end"
+        side="bottom"
+      >
+        <div className='flex flex-col gap-y-2'>
+          {AUTOMATION_LISTENERS.map((listener) => listener.type === "MESSAGE" ?
+            <SubscriptionPlan key={listener.type} type='PRO'>
+              <div onClick={() => onSetListener(listener.type)} key={listener.id} className={cn(Listener === listener.type ? 'bg-gradient-to-br from-blue-500 to-red-500' : 'bg-background/80', 'p-3 rounded-xl flex flex-col gap-y-2 cursor-pointer hover:opacity-80 transition duration-100')}>
+                <div className='flex gap-x-2 items-center'>
+                  {listener.icon}
+                  <p className='text-lg font-semibold'>{listener.label}</p>
+                </div>
+                <p className='text-sm text-neutral-500'>{listener.description}</p>
+              </div>
+            </SubscriptionPlan>
+            : (
+              <SubscriptionPlan key={listener.type} type='FREE'>
+                <div onClick={() => onSetListener(listener.type)} key={listener.id} className={cn(Listener === listener.type ? 'bg-gradient-to-br from-blue-500 to-red-500' : 'bg-background/80', 'p-3 rounded-xl flex flex-col gap-y-2 cursor-pointer hover:opacity-80 transition duration-100')}>
+                  <div className='flex gap-x-2 items-center'>
+                    {listener.icon}
+                    <p className='text-lg font-semibold'>{listener.label}</p>
+                  </div>
+                  <p className='text-sm text-neutral-500'>{listener.description}</p>
+                </div>
+              </SubscriptionPlan>
+            ))}
+          <form onSubmit={onFormSubmit} className='flex flex-col gap-y-2 mt-4'>
+            <Textarea
+              placeholder={Listener === "MESSAGE" ? "Enter the message you want to send the user" : "Tell AI what to say"}
+              {...register("prompt")}
+              className='bg-background/80 outline-none border-none ring-0 focus:ring-0'
+            />
+            <Input
+              placeholder="Add an reply for comments(optional)"
+              {...register("reply")}
+              className='bg-background/80 outline-none border-none ring-0 focus:ring-0'
+            />
+            <Button type="submit">
+              <Loader state={isPending} >
+                Add Listener
+              </Loader>
+            </Button>
+          </form>
+        </div>
+      </PopoverContent>
+    </Popover>
   )
 }
+
+
 
 
 export default Trigger

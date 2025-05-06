@@ -26,15 +26,7 @@ export const findAutomation = async (id: string) => {
     where: eq(automationsTable.id, id),
     with: {
       keywords: true,
-      triggers: {
-        with: {
-          automation: {
-            with: {
-              keywords: true,
-            },
-          },
-        },
-      },
+      triggers: true,
       posts: true,
       listener: true,
       user: {
