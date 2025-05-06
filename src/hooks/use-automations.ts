@@ -1,6 +1,9 @@
 import {
   createAutomations,
+  deleteKeyword,
+  saveKeyword,
   saveListener,
+  saveTrigger,
   updateAutomationName,
 } from "@/actions/automations";
 import { useMutationData } from "./use-mutation-data";
@@ -64,8 +67,10 @@ export const useEditAutomation = (automationId: string) => {
   };
 };
 
+export type ListenerType = "MESSAGE" | "SMARTAI";
+
 export const useListener = (id: string) => {
-  const [listener, setListener] = useState<"MESSAGE" | "SMARTAI">("MESSAGE");
+  const [listener, setListener] = useState<ListenerType>("MESSAGE");
 
   const promptSchema = z.object({
     prompt: z.string().min(1, { message: "Prompt is required" }),
@@ -84,4 +89,49 @@ export const useListener = (id: string) => {
   const formReturns = useZodForm(promptSchema, mutate, {});
 
   return { ...formReturns, onSetListener, isPending, listener };
+};
+
+export type TriggerType = "COMMENT" | "DM";
+
+export const useTriggers = (id: string, types: string[]) => {
+  const { isPending, mutate } = useMutationData(
+    ["add-trigger"],
+    (data: { types: string[] }) => saveTrigger(id, data.types),
+    "automation-info"
+  );
+
+  const onSaveTrigger = () => mutate({ types });
+
+  return { types, onSaveTrigger, isPending };
+};
+
+export const useKeywords = (id: string) => {
+  const [keyword, setKeyword] = useState<string>("");
+
+  const onValueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setKeyword(e.target.value);
+  };
+
+  const { mutate } = useMutationData(
+    ["add-keyword"],
+    (data: { keyword: string }) => saveKeyword(id, data.keyword),
+    "automation-info",
+    () => setKeyword("")
+  );
+
+  const onKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      mutate({ keyword });
+      setKeyword("");
+    }
+  };
+
+  const { mutate: deleteMutation } = useMutationData(
+    ["delete-keyword"],
+    () => deleteKeyword(id),
+    "automation-info"
+  );
+
+  return { keyword, onValueChange, onKeyPress, deleteMutation };
 };

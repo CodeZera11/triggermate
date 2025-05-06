@@ -8,6 +8,7 @@ import { useQueryAutomations } from '@/hooks/use-queries'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import Link from 'next/link'
+import { useMutationDataState } from '@/hooks/use-mutation-data'
 
 const AutomationsPage = () => {
   return (
@@ -38,7 +39,7 @@ export const AutomationList = () => {
 
   // const { optimisticUiData } = useMutationDataState(["create-automation"])
 
-
+  const { latestVariable } = useMutationDataState(["create-automation"])
 
   // const optimisticUiData = useMemo(() => {
 
@@ -65,47 +66,52 @@ export const AutomationList = () => {
 
   return (
     <div className='flex flex-col gap-y-3'>
-      {data?.data?.map((automation) => (
-        <Link
-          key={automation.id}
-          href={`${pathname}/${automation?.id}`} className='border p-4 rounded-md flex justify-between h-[150px]'>
-          <div className='flex flex-col flex-1 h-full justify-between items-start'>
-            <h2 className='text-xl font-semibold'>
-              {automation.name}
-            </h2>
-            <p className='text-sm mb-2'>
-              This is from the comment
-            </p>
-            {automation?.keywords?.length > 0 ? (
-              <div className='flex gap-x-2 flex-wrap mt-3'>
-                <div className={cn('rounded-full px-4 py-1 capitalize')}>
-                  Get Started
+      {data?.data?.map((automation) => {
+        if (automation?.id === latestVariable?.variables?.id) {
+          return null;
+        }
+        return (
+          <Link
+            key={automation.id}
+            href={`${pathname}/${automation?.id}`} className='border p-4 rounded-md flex justify-between h-[150px]'>
+            <div className='flex flex-col flex-1 h-full justify-between items-start'>
+              <h2 className='text-xl font-semibold'>
+                {automation.name}
+              </h2>
+              <p className='text-sm mb-2'>
+                This is from the comment
+              </p>
+              {automation?.keywords?.length > 0 ? (
+                <div className='flex gap-x-2 flex-wrap mt-3'>
+                  <div className={cn('rounded-full px-4 py-1 capitalize')}>
+                    Get Started
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className='rounded-full border-2 mt-3 border-dashed border-white/60 px-3 py-1'>
-                <p className='text-sm '>No Keywords</p>
-              </div>
-            )}
-          </div>
-          <div className='flex flex-col justify-between h-full '>
-            <p className='capitalize text-sm font-light'>
-              {format(new Date(automation?.createdAt || ""), 'MMMM dd, yyyy')}
-            </p>
-            <div className='bg-red-500 mt-auto'>
-              {automation?.listener?.listener === "SMARTAI" ? (
-                <Button>
-                  Smart AI
-                </Button>
               ) : (
-                <Button variant="secondary">
-                  Standard
-                </Button>
+                <div className='rounded-full border-2 mt-3 border-dashed border-white/60 px-3 py-1'>
+                  <p className='text-sm '>No Keywords</p>
+                </div>
               )}
             </div>
-          </div>
-        </Link>
-      ))}
+            <div className='flex flex-col justify-between h-full '>
+              <p className='capitalize text-sm font-light'>
+                {format(new Date(automation?.createdAt || ""), 'MMMM dd, yyyy')}
+              </p>
+              <div className='bg-red-500 mt-auto'>
+                {automation?.listener?.listener === "SMARTAI" ? (
+                  <Button>
+                    Smart AI
+                  </Button>
+                ) : (
+                  <Button variant="secondary">
+                    Standard
+                  </Button>
+                )}
+              </div>
+            </div>
+          </Link>
+        )
+      })}
     </div>
   )
 }

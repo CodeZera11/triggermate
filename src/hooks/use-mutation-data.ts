@@ -41,12 +41,6 @@ export const useMutationDataState = (mutationKey: MutationKey) => {
     },
   });
 
-  return {
-    optimisticUiData: data.map((i) => {
-      return { ...i.variables };
-    }),
-  };
-
   const latestVariable = data[data.length - 1];
   return { latestVariable };
 };

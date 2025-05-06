@@ -2,8 +2,11 @@
 
 import { onCurrentUser, onUserInfo } from "../user";
 import {
+  addKeyword,
   addListener,
+  addTrigger,
   createAutomation,
+  deleteKeyWord,
   findAutomation,
   getAutomations,
   updateAutomation,
@@ -96,6 +99,51 @@ export const saveListener = async (
     return { status: 404, data: "Oops! Cant save listener." };
   } catch (error) {
     console.log("[UPDATE_AUTOMATION_NAME]", error);
+    return { status: 500, data: "Oops! Internal server error" };
+  }
+};
+
+export const saveTrigger = async (automationId: string, trigger: string[]) => {
+  await onCurrentUser();
+  try {
+    const create = await addTrigger(automationId, trigger);
+
+    if (create) {
+      return { status: 200, data: "Trigger created" };
+    }
+    return { status: 404, data: "Oops! Cant save trigger." };
+  } catch (error) {
+    console.log("[SAVE_TRIGGER]", error);
+    return { status: 500, data: "Oops! Internal server error" };
+  }
+};
+
+export const saveKeyword = async (automationId: string, keyword: string) => {
+  await onCurrentUser();
+  try {
+    const create = await addKeyword(automationId, keyword);
+
+    if (create) {
+      return { status: 200, data: "Keyword created" };
+    }
+    return { status: 404, data: "Oops! Cant save keyword." };
+  } catch (error) {
+    console.log("[SAVE_KEYWORD]", error);
+    return { status: 500, data: "Oops! Internal server error" };
+  }
+};
+
+export const deleteKeyword = async (id: string) => {
+  await onCurrentUser();
+  try {
+    const create = await deleteKeyWord(id);
+
+    if (create) {
+      return { status: 200, data: "Keyword deleted" };
+    }
+    return { status: 404, data: "Oops! Cant delete keyword." };
+  } catch (error) {
+    console.log("[DELETE_KEYWORD]", error);
     return { status: 500, data: "Oops! Internal server error" };
   }
 };

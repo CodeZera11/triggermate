@@ -1,7 +1,12 @@
 "use server";
 
 import { db } from "@/db";
-import { automationsTable, listenersTable } from "@/db/schema";
+import {
+  automationsTable,
+  keywordsTable,
+  listenersTable,
+  triggersTable,
+} from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const createAutomation = async (userId: string, id?: string) => {
@@ -69,3 +74,35 @@ export const addListener = async (
     })
     .returning();
 };
+
+export const addTrigger = async (automationId: string, trigger: string[]) => {
+  if (trigger.length === 2) {
+    const data = [
+      { automationId: automationId, type: trigger[0] },
+      { automationId: automationId, type: trigger[1] },
+    ];
+
+    return await db.insert(triggersTable).values(data);
+  }
+
+  if (trigger.length === 1) {
+    return await db.insert(triggersTable).values({
+      automationId: automationId,
+      type: trigger[0],
+    });
+  }
+};
+
+export const addKeyword = async (automationId: string, keyword: string) => {
+  return await db
+    .insert(keywordsTable)
+    .values({
+      automationId: automationId,
+      word: keyword,
+    })
+    .returning();
+};
+
+export const deleteKeyWord = async (id: string) => {
+  return await db.delete(keywordsTable).where(eq(keywordsTable.id, id));
+}

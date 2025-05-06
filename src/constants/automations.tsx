@@ -9,6 +9,13 @@ export type AutomationListener = {
   description: string;
   icon: JSX.Element
 }
+export type AutomationTrigger = {
+  id: string;
+  type: "COMMENT" | "DM";
+  label: string;
+  description: string;
+  icon: JSX.Element
+}
 
 export const AUTOMATION_LISTENERS: AutomationListener[] = [
   {
@@ -24,5 +31,22 @@ export const AUTOMATION_LISTENERS: AutomationListener[] = [
     icon: <PlusCircle className="w-4 h-4" />,
     description: "Tell AI what to say. (Upgrade to use this feature)",
     type: "SMARTAI"
+  }
+]
+
+export const AUTOMATION_TRIGGERS: AutomationTrigger[] = [
+  {
+    id: v4(),
+    label: 'User comments on my post',
+    icon: <PlusCircle className="w-4 h-4" />,
+    description: `Select if you want to automate comments on your post`,
+    type: 'COMMENT'
+  },
+  {
+    id: v4(),
+    label: 'Send me a dm with a keyword',
+    icon: <PlusCircle className="w-4 h-4" />,
+    description: `Select if you want to automate dms on your profile`,
+    type: 'DM'
   }
 ]
