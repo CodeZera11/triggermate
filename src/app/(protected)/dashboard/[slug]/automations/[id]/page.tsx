@@ -1,4 +1,5 @@
 import { getAutomationInfo } from '@/actions/automations';
+import Trigger from '@/components/global/automations/trigger/trigger';
 import { PrefetchUserAutomation } from '@/react-query/prefetch';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
 import React from 'react'
@@ -21,7 +22,9 @@ const AutomationPage = async ({ params }: { params: Promise<{ id: string }> }) =
 
   return (
     <HydrationBoundary state={dehydrate(query)}>
-      <div>AutomationPage</div>
+      <div className='h-screen'>
+        <Trigger id={id} />
+      </div>
     </HydrationBoundary>
   )
 }

@@ -18,7 +18,7 @@ const Layout = async ({ children, params }: Props) => {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <div className='p-3'>
+      <div className='p-3 h-screen'>
         <Navbar slug={slug} />
         <Sidebar slug={slug} />
         <div className="lg:ml-[250px] lg:pl-10 lg:py-5 flex flex-col overflow-auto">

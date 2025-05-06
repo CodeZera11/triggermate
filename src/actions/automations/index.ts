@@ -2,6 +2,7 @@
 
 import { onCurrentUser, onUserInfo } from "../user";
 import {
+  addListener,
   createAutomation,
   findAutomation,
   getAutomations,
@@ -68,11 +69,31 @@ export const updateAutomationName = async (
   try {
     const update = await updateAutomation(automationId, data);
 
-    if(update) {
+    if (update) {
       return { status: 200, data: "Automation updated" };
     }
     return { status: 404, data: "Oops! Could not find automation." };
+  } catch (error) {
+    console.log("[UPDATE_AUTOMATION_NAME]", error);
+    return { status: 500, data: "Oops! Internal server error" };
+  }
+};
 
+export const saveListener = async (
+  automationId: string,
+  listener: "MESSAGE" | "SMARTAI",
+  prompt: string,
+  reply?: string
+) => {
+  await onCurrentUser();
+
+  try {
+    const create = await addListener(automationId, listener, prompt, reply);
+
+    if (create) {
+      return { status: 200, data: "Listener created" };
+    }
+    return { status: 404, data: "Oops! Cant save listener." };
   } catch (error) {
     console.log("[UPDATE_AUTOMATION_NAME]", error);
     return { status: 500, data: "Oops! Internal server error" };

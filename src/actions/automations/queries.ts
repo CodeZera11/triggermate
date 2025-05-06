@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/db";
-import { automationsTable } from "@/db/schema";
+import { automationsTable, listenersTable } from "@/db/schema";
 import { eq } from "drizzle-orm";
 
 export const createAutomation = async (userId: string, id?: string) => {
@@ -26,7 +26,15 @@ export const findAutomation = async (id: string) => {
     where: eq(automationsTable.id, id),
     with: {
       keywords: true,
-      triggers: true,
+      triggers: {
+        with: {
+          automation: {
+            with: {
+              keywords: true,
+            },
+          },
+        },
+      },
       posts: true,
       listener: true,
       user: {
@@ -50,5 +58,22 @@ export const updateAutomation = async (
       active: update.active,
     })
     .where(eq(automationsTable.id, id))
+    .returning();
+};
+
+export const addListener = async (
+  automationId: string,
+  listener: "MESSAGE" | "SMARTAI",
+  prompt: string,
+  reply?: string
+) => {
+  return await db
+    .insert(listenersTable)
+    .values({
+      automationId: automationId,
+      listener: listener,
+      prompt: prompt,
+      commentReply: reply,
+    })
     .returning();
 };
