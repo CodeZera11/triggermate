@@ -147,3 +147,23 @@ export const deleteKeyword = async (id: string) => {
     return { status: 500, data: "Oops! Internal server error" };
   }
 };
+
+export const getProfilePosts = async () => {
+  const user = await onUserInfo();
+
+  if (!user || !user?.data) {
+    return { status: 400, data: [] };
+  }
+
+  try {
+    const posts = await fetch(
+      `${process.env.INSTAGRAM_BASE_URL}/me/media?fields=id,caption,media_url,media_type,timestamp&limit=10&access_token=${user?.data?.integrations[0]?.token}`
+    );
+    const parsed = await posts.json();
+    if (!parsed) return { status: 404, data: [] };
+    return { status: 200, data: parsed };
+  } catch (error) {
+    console.log("[GET_PROFILE_POSTS]", error);
+    return { status: 500, data: [] };
+  }
+};

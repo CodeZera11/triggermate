@@ -97,7 +97,7 @@ export const AutomationList = () => {
               <p className='capitalize text-sm font-light'>
                 {format(new Date(automation?.createdAt || ""), 'MMMM dd, yyyy')}
               </p>
-              <div className='bg-red-500 mt-auto'>
+              <div className='mt-auto'>
                 {automation?.listener?.listener === "SMARTAI" ? (
                   <Button>
                     Smart AI

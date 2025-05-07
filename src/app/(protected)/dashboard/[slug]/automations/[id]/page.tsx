@@ -1,4 +1,5 @@
 import { getAutomationInfo } from '@/actions/automations';
+import ThenNode from '@/components/global/automations/then/node';
 import Trigger from '@/components/global/automations/trigger/trigger';
 import { PrefetchUserAutomation } from '@/react-query/prefetch';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
@@ -22,8 +23,14 @@ const AutomationPage = async ({ params }: { params: Promise<{ id: string }> }) =
 
   return (
     <HydrationBoundary state={dehydrate(query)}>
-      <div className='h-screen'>
-        <Trigger id={id} />
+      <div className='flex flex-col items-center gap-y-20'>
+        <div className='w-full lg:w-10/12 xl:6/12 p-5 rounded-xl flex flex-col bg-[#1D1D1D] gap-y-3'>
+          <div className='flex gap-x-2'>
+            When...
+          </div>
+          <Trigger id={id} />
+        </div>
+        <ThenNode id={id} />
       </div>
     </HydrationBoundary>
   )
