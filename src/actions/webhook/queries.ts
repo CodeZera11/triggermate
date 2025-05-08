@@ -3,12 +3,14 @@
 import { db } from "@/db";
 import {
   automationsTable,
+  dmsTable,
   increment,
   keywordsTable,
   listenersTable,
+  postsTable,
   triggersTable,
 } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 
 export const matchKeyword = async (keyword: string) => {
   return await db.query.keywordsTable.findFirst({
@@ -62,3 +64,23 @@ export const trackResponse = async (
       .returning();
   }
 };
+
+
+export const createChatHistory = async (automationId: string, sender: string, receiver: string, message: string) {
+  return await db.insert(dmsTable).values({
+    automationId,
+    receiver,
+    senderId: sender,
+    message
+  })
+}
+
+
+export const getKeywordPost = async (postId: string, automationId: string) => {
+return await db.query.postsTable.findFirst({
+  where: and(eq(postsTable.postid, postId), eq(postsTable.automationId, automationId)),
+  with: {
+    automation: true
+  }
+})
+}
