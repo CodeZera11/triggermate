@@ -19,6 +19,7 @@ export async function GET() {
         quantity: 1,
       },
     ],
+    customer_email: user.emailAddresses[0].emailAddress,
     success_url: `${process.env.NEXT_PUBLIC_HOST_URL}/payment?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${process.env.NEXT_PUBLIC_HOST_URL}/payment?cancel=true`,
   });

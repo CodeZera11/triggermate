@@ -36,6 +36,13 @@ export const createUser = async ({
     })
     .returning();
 
+  await db.insert(subscriptionTable).values({
+    userId: user.id,
+    customerId: null,
+    plan: "FREE",
+    updatedAt: new Date().toISOString(),
+  });
+
   return user;
 };
 
