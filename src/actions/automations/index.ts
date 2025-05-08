@@ -185,3 +185,21 @@ export const savePosts = async (automationId: string, post: IgPost[]) => {
     return { status: 500, data: "Oops! Internal server error" };
   }
 };
+
+export const activateAutomation = async (id: string, state: boolean) => {
+  await onCurrentUser();
+
+  try {
+    const update = await updateAutomation(id, { active: state });
+    if (update) {
+      return {
+        status: 200,
+        data: `Automation ${state ? "activated" : "disabled"}`,
+      };
+    }
+    return { status: 404, data: "Oops! Could not find automation." };
+  } catch (error) {
+    console.log("[ACTIVATE_AUTOMATION]", error);
+    return { status: 500, data: "Oops! Internal server error" };
+  }
+};

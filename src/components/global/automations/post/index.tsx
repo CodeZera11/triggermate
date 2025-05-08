@@ -6,11 +6,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { IgPost, useAutomationPosts } from "@/hooks/use-automations";
+import {  useAutomationPosts } from "@/hooks/use-automations";
 import { useQueryAutomationPosts } from "@/hooks/use-queries";
 import { cn } from "@/lib/utils";
 import { CheckCircle } from "lucide-react";
 import Image from "next/image";
+import Loader from "../../loader";
 
 type Props = {
   id: string;
@@ -40,7 +41,7 @@ const PostButton = ({ id }: Props) => {
               {data?.data?.data?.map((post: InstagramPost) => (
                 <div
                   className="relative w-4/12 aspect-square rounded-lg cursor-pointer overflow-hidden"
-                  key={post.postid}
+                  key={post.id}
                   onClick={() =>
                     onSelectPost({
                       postid: post.id,
@@ -66,9 +67,14 @@ const PostButton = ({ id }: Props) => {
                 </div>
               ))}
             </div>
+            <Button onClick={mutate} disabled={posts.length === 0}>
+              <Loader state={isPending}>Attach Post</Loader>
+            </Button>
           </div>
         ) : (
-          <div></div>
+          <div className="text-secondary-foreground text-center">
+            No Posts Found!
+          </div>
         )}
       </PopoverContent>
     </Popover>
