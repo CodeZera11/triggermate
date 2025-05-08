@@ -28,10 +28,10 @@ export const useQueryUser = () => {
 };
 
 export const useQueryAutomationPosts = () => {
-  // const fetchPosts = async () => await getProfilePosts();
+  // const fetchPosts = async () => await ();
 
   return useQuery({
     queryKey: ["instagram-media"],
-    queryFn: getProfilePosts,
+    queryFn:  getProfilePosts,
   });
 };

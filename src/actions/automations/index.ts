@@ -1,9 +1,11 @@
 "use server";
 
+import { IgPost } from "@/hooks/use-automations";
 import { onCurrentUser, onUserInfo } from "../user";
 import {
   addKeyword,
   addListener,
+  addPost,
   addTrigger,
   createAutomation,
   deleteKeyWord,
@@ -165,5 +167,21 @@ export const getProfilePosts = async () => {
   } catch (error) {
     console.log("[GET_PROFILE_POSTS]", error);
     return { status: 500, data: [] };
+  }
+};
+
+export const savePosts = async (automationId: string, post: IgPost[]) => {
+  await onCurrentUser();
+  try {
+    const create = await addPost(automationId, post);
+
+    if (create) {
+      return { status: 200, data: "Post created" };
+    }
+
+    return { status: 404, data: "Oops! Cant save post." };
+  } catch (error) {
+    console.log("[SAVE_POST]", error);
+    return { status: 500, data: "Oops! Internal server error" };
   }
 };

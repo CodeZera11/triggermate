@@ -5,8 +5,10 @@ import {
   automationsTable,
   keywordsTable,
   listenersTable,
+  postsTable,
   triggersTable,
 } from "@/db/schema";
+import { IgPost } from "@/hooks/use-automations";
 import { eq } from "drizzle-orm";
 
 export const createAutomation = async (userId: string, id?: string) => {
@@ -105,4 +107,13 @@ export const addKeyword = async (automationId: string, keyword: string) => {
 
 export const deleteKeyWord = async (id: string) => {
   return await db.delete(keywordsTable).where(eq(keywordsTable.id, id));
-}
+};
+
+export const addPost = async (automationId: string, posts: IgPost[]) => {
+  const postsWithAutomationId = posts.map((post) => ({
+    automationId: automationId,
+    ...post,
+  }));
+
+  return await db.insert(postsTable).values(postsWithAutomationId);
+};
