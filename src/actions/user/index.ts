@@ -2,9 +2,10 @@
 
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { createUser, findUser } from "./queries";
+import { createUser, findUser, updateSubscription } from "./queries";
 import { refreshToken } from "@/lib/fetch";
 import { updateIntegration } from "../integrations/queries";
+import { stripe } from "@/app/(protected)/api/payment/route";
 
 export const onCurrentUser = async () => {
   const user = await currentUser();
@@ -86,6 +87,29 @@ export const onUserInfo = async () => {
     return { status: 404 };
   } catch (error) {
     console.log("[ONUSERINFO]", error);
+    return { status: 500 };
+  }
+};
+
+export const onSubscribe = async (session_id: string) => {
+  const clerkUser = await onCurrentUser();
+
+  try {
+    const session = await stripe.checkout.sessions.retrieve(session_id);
+
+    if (session) {
+      const subscribed = await updateSubscription(clerkUser.id, {
+        customerId: session.customer as string,
+        plan: "PRO",
+      });
+      if (subscribed) {
+        return { status: 200 };
+      }
+
+      return { status: 401 };
+    }
+  } catch (error) {
+    console.log("[ONSUBSCRIBE]", error);
     return { status: 500 };
   }
 };
