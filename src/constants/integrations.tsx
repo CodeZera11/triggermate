@@ -9,7 +9,7 @@ export type IntegrationCardProps = {
 
 export const INTEGRATION_CARDS: IntegrationCardProps[] = [
   {
-    title: "Connect Instagra",
+    title: "Connect Instagram",
     description: "Connect your Instagram account to get started.",
     icon: <InstagramIcon />,
     strategy: "INSTAGRAM",
