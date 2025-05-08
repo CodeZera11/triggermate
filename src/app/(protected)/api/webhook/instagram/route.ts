@@ -10,6 +10,7 @@ import {
 import { sendDM } from "@/lib/fetch";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
+import { ChatCompletionUserMessageParam } from "openai/resources/index.mjs";
 
 const openai = new OpenAI({
   apiKey: process.env.OPEN_AI_KEY,
@@ -26,12 +27,14 @@ export async function POST(req: NextRequest) {
   let matcher;
 
   try {
+    // Check if it is DM
     if (webhook_payload.entry[0].messaging) {
       matcher = await matchKeyword(
         webhook_payload.entry[0].messaging[0].message.text
       );
     }
 
+    // Check if it is comment
     if (webhook_payload.entry[0].changes) {
       matcher = await matchKeyword(
         webhook_payload.entry[0].changes[0].value.text
@@ -51,7 +54,7 @@ export async function POST(req: NextRequest) {
             automation?.listener &&
             automation?.listener?.listener === "MESSAGE"
           ) {
-            const igListener = automation?.user?.integrations.find(
+            const igIntegration = automation?.user?.integrations.find(
               (i) => i.name === "INSTAGRAM"
             );
 
@@ -59,7 +62,7 @@ export async function POST(req: NextRequest) {
               webhook_payload.entry[0].id,
               webhook_payload.entry[0].messaging[0].sender.id,
               automation?.listener.prompt,
-              igListener?.token || ""
+              igIntegration?.token || ""
             );
 
             if (direct_message.status === 200) {
@@ -90,14 +93,14 @@ export async function POST(req: NextRequest) {
             });
 
             if (smart_ai_message?.choices[0]?.message?.content) {
-              const receiver = await createChatHistory(
+              await createChatHistory(
                 automation.id,
                 webhook_payload.entry[0].id,
                 webhook_payload.entry[0].messaging[0].sender.id,
                 webhook_payload.entry[0].messaging[0].message.text
               );
 
-              const sender = await createChatHistory(
+              await createChatHistory(
                 automation.id,
                 webhook_payload.entry[0].id,
                 webhook_payload.entry[0].messaging[0].sender.id,
@@ -190,14 +193,14 @@ export async function POST(req: NextRequest) {
               if (smart_ai_message.choices[0].message.content) {
                 // TODO: Implement Transaction Here
 
-                const receiver = await createChatHistory(
+                await createChatHistory(
                   automation.id,
                   webhook_payload.entry[0].id,
                   webhook_payload.entry[0].changes[0].value.from.id,
                   webhook_payload.entry[0].changes[0].value.text
                 );
 
-                const sender = await createChatHistory(
+                await createChatHistory(
                   automation.id,
                   webhook_payload.entry[0].id,
                   webhook_payload.entry[0].changes[0].value.from.id,
@@ -240,7 +243,94 @@ export async function POST(req: NextRequest) {
         const automation = await findAutomation(
           customer_history?.automationId as string
         );
+
+        if (
+          automation?.user?.subscription?.plan === "PRO" &&
+          automation?.listener?.listener === "SMARTAI"
+        ) {
+          const smart_ai_message = await openai.chat.completions.create({
+            model: "gpt-4o",
+            messages: [
+              {
+                role: "assistant",
+                content: `${automation?.listener?.prompt}: keep responses under 2 sentences`,
+              },
+              ...customer_history?.history.map((h) => ({
+                role:
+                  h.senderId === webhook_payload.entry[0].messaging[0].sender.id
+                    ? ("user" as ChatCompletionUserMessageParam["role"])
+                    : ("assistant" as ChatCompletionUserMessageParam["role"]),
+                content: h.message || "",
+              })),
+              {
+                role: "user",
+                content: webhook_payload.entry[0].messaging[0].message.text,
+              },
+            ],
+          });
+
+          if (smart_ai_message.choices[0].message.content) {
+            await createChatHistory(
+              automation.id,
+              webhook_payload.entry[0].id,
+              webhook_payload.entry[0].messaging[0].sender.id,
+              webhook_payload.entry[0].messaging[0].message.text
+            );
+            await createChatHistory(
+              automation.id,
+              webhook_payload.entry[0].id,
+              webhook_payload.entry[0].messaging[0].sender.id,
+              smart_ai_message.choices[0].message.content
+            );
+
+            const igIntegration = automation?.user?.integrations.find(
+              (i) => i.name === "INSTAGRAM"
+            );
+
+            const direct_message = await sendDM(
+              webhook_payload.entry[0].id,
+              webhook_payload.entry[0].messaging[0].sender.id,
+              smart_ai_message.choices[0].message.content,
+              igIntegration?.token || ""
+            );
+
+            if (direct_message.status === 200) {
+              return NextResponse.json(
+                {
+                  message: "Message sent",
+                },
+                { status: 200 }
+              );
+
+              // const tracked = await trackResponse(automation.id, "DM");
+
+              // if (tracked) {
+              //   return NextResponse.json(
+              //     {
+              //       message: "Message sent",
+              //     },
+              //     { status: 200 }
+              //   );
+              // }
+            }
+          }
+        }
       }
     }
-  } catch (error) {}
+
+    return NextResponse.json(
+      {
+        message: "No Automation set",
+      },
+      { status: 404 }
+    );
+  } catch (error) {
+    console.error("Error in Instagram webhook:", error);
+    return NextResponse.json(
+      {
+        message: "Error processing request",
+      },
+      { status: 500 }
+    );
+  }
 }
