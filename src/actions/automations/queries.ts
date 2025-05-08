@@ -100,7 +100,7 @@ export const addKeyword = async (automationId: string, keyword: string) => {
     .insert(keywordsTable)
     .values({
       automationId: automationId,
-      word: keyword,
+      word: keyword.toLowerCase(),
     })
     .returning();
 };

@@ -1,4 +1,4 @@
-import { relations } from "drizzle-orm";
+import { AnyColumn, relations, sql } from "drizzle-orm";
 import {
   boolean,
   integer,
@@ -195,3 +195,7 @@ export const keywordRelations = relations(keywordsTable, ({ one }) => ({
     references: [automationsTable.id],
   }),
 }));
+
+export const increment = (column: AnyColumn, value = 1) => {
+  return sql`${column} + ${value}`;
+};
