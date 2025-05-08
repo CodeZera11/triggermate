@@ -65,22 +65,42 @@ export const trackResponse = async (
   }
 };
 
-
-export const createChatHistory = async (automationId: string, sender: string, receiver: string, message: string) {
+export const createChatHistory = async (
+  automationId: string,
+  sender: string,
+  receiver: string,
+  message: string
+) => {
   return await db.insert(dmsTable).values({
     automationId,
     receiver,
     senderId: sender,
-    message
-  })
-}
-
+    message,
+  });
+};
 
 export const getKeywordPost = async (postId: string, automationId: string) => {
-return await db.query.postsTable.findFirst({
-  where: and(eq(postsTable.postid, postId), eq(postsTable.automationId, automationId)),
-  with: {
-    automation: true
-  }
-})
-}
+  return await db.query.postsTable.findFirst({
+    where: and(
+      eq(postsTable.postid, postId),
+      eq(postsTable.automationId, automationId)
+    ),
+    with: {
+      automation: true,
+    },
+  });
+};
+
+export const getChatHistory = async (receiver: string, sender: string) => {
+  const history = await db.query.dmsTable.findMany({
+    where: and(eq(dmsTable.receiver, receiver), eq(dmsTable.senderId, sender)),
+    with: {
+      automation: true,
+    },
+  });
+
+  return {
+    history: history,
+    automationId: history[0]?.automationId,
+  };
+};
