@@ -16,10 +16,8 @@ export const onIntegrate = async (code: string) => {
   try {
     const integration = await getIntegration(user.id);
 
-    if (integration && integration.integrations.length > 0) {
+    if (integration && integration.integrations.length === 0) {
       const token = await generateTokens(code);
-
-      console.log(token);
 
       if (token) {
         const insta_id = await axios.get(
@@ -41,6 +39,7 @@ export const onIntegrate = async (code: string) => {
 
       return { status: 401 };
     }
+
     return { status: 404 };
   } catch (error) {
     console.log("[ERROR] Integration Error: ", error);

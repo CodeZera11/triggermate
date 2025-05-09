@@ -30,8 +30,6 @@ export const IntegrationCard = ({ title, description, icon }: IntegrationCardPro
 
   const isInstaIntegrated = integrated?.name === "INSTAGRAM"
 
-  console.log({ isInstaIntegrated })
-
   return (
     <div className='border-2 rounded-2xl gap-x-5 p-5 flex items-center'>
       {icon}

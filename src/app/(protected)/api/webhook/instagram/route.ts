@@ -7,7 +7,7 @@ import {
   matchKeyword,
   trackResponse,
 } from "@/actions/webhook/queries";
-import { sendDM } from "@/lib/fetch";
+import { sendDM, sendPrivateMessage } from "@/lib/fetch";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import { ChatCompletionUserMessageParam } from "openai/resources/index.mjs";
@@ -155,9 +155,9 @@ export async function POST(req: NextRequest) {
 
           if (automation.listener) {
             if (automation.listener.listener === "MESSAGE") {
-              const direct_message = await sendDM(
+              const direct_message = await sendPrivateMessage(
                 webhook_payload.entry[0].id,
-                webhook_payload.entry[0].changes[0].value.from.id,
+                webhook_payload.entry[0].changes[0].value.id,
                 automation?.listener?.prompt,
                 igIntegration?.token || ""
               );
@@ -207,10 +207,10 @@ export async function POST(req: NextRequest) {
                   smart_ai_message.choices[0].message.content
                 );
 
-                const direct_message = await sendDM(
+                const direct_message = await sendPrivateMessage(
                   webhook_payload.entry[0].id,
-                  webhook_payload.entry[0].changes[0].value.from.id,
-                  smart_ai_message.choices[0].message.content,
+                  webhook_payload.entry[0].changes[0].value.id,
+                  automation?.listener?.prompt,
                   igIntegration?.token || ""
                 );
 
@@ -322,7 +322,7 @@ export async function POST(req: NextRequest) {
       {
         message: "No Automation set",
       },
-      { status: 404 }
+      { status: 200 }
     );
   } catch (error) {
     console.error("Error in Instagram webhook:", error);
@@ -330,7 +330,7 @@ export async function POST(req: NextRequest) {
       {
         message: "Error processing request",
       },
-      { status: 500 }
+      { status: 200 }
     );
   }
 }

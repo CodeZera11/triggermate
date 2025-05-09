@@ -83,9 +83,11 @@ export const AutomationList = () => {
               </p>
               {automation?.keywords?.length > 0 ? (
                 <div className='flex gap-x-2 flex-wrap mt-3'>
-                  <div className={cn('rounded-full px-4 py-1 capitalize')}>
-                    Get Started
-                  </div>
+                  {automation?.keywords?.map((keyword) => (
+                    <div key={keyword.id} className={cn('rounded-full px-4 py-1 capitalize')}>
+                      {keyword.word}
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className='rounded-full border-2 mt-3 border-dashed border-white/60 px-3 py-1'>

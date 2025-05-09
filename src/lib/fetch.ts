@@ -60,10 +60,46 @@ export const generateTokens = async (code: string) => {
 
   if (token.permissions.length > 0) {
     console.log(token, "got permissions");
-    const long_token = await axios.get(
-      `${process.env.INSTAGRAM_BASE_URL}/access_token?grant_type=ig_exchange_token&client_secret=${process.env.INSTAGRAM_CLIENT_SECRET}&access_token=${token.access_token}`
-    );
 
-    return long_token.data;
+    try {
+      const long_token_res = await fetch(
+        `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${process.env.INSTAGRAM_CLIENT_SECRET}&access_token=${token.access_token}`
+      );
+
+      const long_token = await long_token_res.json();
+      console.log(long_token, "got long token");
+
+      return long_token.data;
+    } catch (error) {
+      console.error("Error getting long token", error);
+      return null;
+    }
   }
+};
+
+export const sendPrivateMessage = async (
+  userId: string,
+  receiverId: string,
+  prompt: string,
+  token: string
+) => {
+  console.log("Sending message...");
+
+  return await axios.post(
+    `${process.env.INSTAGRAM_BASE_URL}/${userId}/messages`,
+    {
+      recipient: {
+        comment_id: receiverId,
+      },
+      message: {
+        text: prompt,
+      },
+    },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    }
+  );
 };
